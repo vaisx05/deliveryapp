@@ -92,6 +92,15 @@ flutter:
           - asset: assets/fonts/Poppins-Bold.ttf      
           - asset: assets/fonts/Poppins-ExtraBold.ttf         
           - asset: assets/fonts/Poppins-Black.ttf
+
+      - family: AirbnbCereal
+        fonts:
+          - asset: assets/fonts/AirbnbCereal_W_Bk.otf       
+          - asset: assets/fonts/AirbnbCereal_W_Blk.otf     
+          - asset: assets/fonts/AirbnbCereal_W_Md.otf       
+          - asset: assets/fonts/AirbnbCereal_W_XBd.otf      
+          - asset: assets/fonts/AirbnbCereal_W_Lt.otf      
+          - asset: assets/fonts/AirbnbCereal_W_Bd.otf
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf
