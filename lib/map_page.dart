@@ -76,7 +76,8 @@ class OrderScreen extends StatelessWidget {
                   children: [
                     OrderDetail(order: order),
                     const SizedBox(height: 16),
-                    OrderMap(pickupDetails: order.pickupDetails), // Add map here
+                    OrderMap(
+                        pickupDetails: order.pickupDetails, dropDetails: order.dropDetails,), // Add map here
                   ],
                 );
               },

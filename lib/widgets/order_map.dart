@@ -7,8 +7,9 @@ import '../models/order_model.dart';
 
 class OrderMap extends StatefulWidget {
   final List<PickupDetail> pickupDetails;
+  final List<DropDetails> dropDetails;
 
-  const OrderMap({super.key, required this.pickupDetails});
+  const OrderMap({super.key, required this.pickupDetails, required this.dropDetails});
 
   @override
   State<OrderMap> createState() => _OrderMapState();

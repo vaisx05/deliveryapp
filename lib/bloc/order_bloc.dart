@@ -34,6 +34,15 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
             longitude: 72.835580,
           ),
         ],
+        dropDetails: [
+          DropDetails(
+            address: "Ananta Stores, 204/C, Apts, Andheri East 400069",
+            productName: "Atta Ladoo",
+            quantity: 3,
+            latitude: 19.111123,
+            longitude: 72.835580,
+          ),
+        ],
         totalAmount: 2300.0,
         paymentStatus: "Paid",
       ),
@@ -61,6 +70,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
         ],
         totalAmount: 2300.0,
         paymentStatus: "Paid",
+        dropDetails: [],
       ),
     ];
 
