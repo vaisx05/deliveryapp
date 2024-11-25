@@ -33,8 +33,8 @@ class OrderScreen extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80),
         child: Material(
-          elevation: 8,
-          shadowColor: Colors.black45,
+          elevation: 8, // Adjust for shadow intensity
+          shadowColor: Colors.black45, // Set shadow color
           borderRadius: const BorderRadius.vertical(
             bottom: Radius.circular(30),
           ),
@@ -55,7 +55,7 @@ class OrderScreen extends StatelessWidget {
               ),
               backgroundColor: Colors.white,
               elevation: 0,
-              centerTitle: true,
+              centerTitle: true, // Remove AppBar's own elevation
             ),
           ),
         ),
@@ -70,49 +70,15 @@ class OrderScreen extends StatelessWidget {
               itemCount: state.orders.length,
               itemBuilder: (context, index) {
                 final order = state.orders[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: DecoratedBox(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 10,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                      borderRadius: BorderRadius.vertical(
-                        bottom: Radius.circular(30),
-                      ),
-                    ),
-                    child: ExpansionTile(
-                      backgroundColor: Colors.white,
-                      title: Text(
-                        order.orderNumber,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(
-                        order.status,
-                        style: TextStyle(
-                          color: order.status == "Pickup Pending"
-                              ? Colors.redAccent
-                              : Colors.green,
-                        ),
-                      ),
-                      children: [
-                        OrderDetail(order: order),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          height: 300,
-                          child: OrderMap(
-                            pickupDetails: order.pickupDetails,
-                            dropDetails: order.dropDetails,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                return ExpansionTile(
+                  title: Text(order.orderNumber),
+                  subtitle: Text(order.status),
+                  children: [
+                    OrderDetail(order: order),
+                    const SizedBox(height: 16),
+                    OrderMap(
+                        pickupDetails: order.pickupDetails, dropDetails: order.dropDetails,), // Add map here
+                  ],
                 );
               },
             );
