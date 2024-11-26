@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart'; // For location tracking
+import 'package:permission_handler/permission_handler.dart'; // For permission handling
 import 'package:http/http.dart' as http;
 import '../models/order_model.dart';
 
@@ -20,12 +23,50 @@ class OrderMap extends StatefulWidget {
 }
 
 class _OrderMapState extends State<OrderMap> {
+  late final MapController _mapController;
+  LatLng? _currentLocation;
   List<LatLng> _polylinePoints = [];
+  final double _radius = 200; // Geofence radius in meters
+  final Color _geofenceColor = Colors.blue.withOpacity(0.2);
 
   @override
   void initState() {
     super.initState();
+    _mapController = MapController();
+    _getCurrentLocation();
     _fetchRoute();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    // Check if location permission is granted
+    PermissionStatus permission = await Permission.location.status;
+
+    if (permission == PermissionStatus.denied) {
+      // Request permission if denied
+      permission = await Permission.location.request();
+      if (permission != PermissionStatus.granted) {
+        print("Location permission denied.");
+        return;
+      }
+    }
+
+    // Check if location services are enabled
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      print("Location services are disabled.");
+      return;
+    }
+
+    // Get current location
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+
+    setState(() {
+      _currentLocation = LatLng(position.latitude, position.longitude);
+    });
+
+    // Move the map to the current location
+    _mapController.move(_currentLocation!, 15); // Zoom level 15
   }
 
   Future<void> _fetchRoute() async {
@@ -68,54 +109,95 @@ class _OrderMapState extends State<OrderMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: FlutterMap(
-          options: MapOptions(
-            initialCenter: LatLng(
-              widget.pickupDetails[0].latitude,
-              widget.pickupDetails[0].longitude,
+      extendBodyBehindAppBar: true,
+      body: Stack(
+        children: [
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: _currentLocation ??
+                  const LatLng(0.0, 0.0), // Default to (0, 0) if unavailable
+              initialZoom: 13.0,
             ),
-            initialZoom: 13.0,
-          ),
-          children: [
-            TileLayer(
-              urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            ),
-            MarkerLayer(
-              markers: [
-                ...widget.pickupDetails.map((pickup) => Marker(
-                      point: LatLng(pickup.latitude, pickup.longitude),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              ),
+              if (_currentLocation != null) ...[
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: _currentLocation!,
+                      width: 60,
+                      height: 60,
                       child: const Icon(
-                        Icons.location_on,
-                        color: Colors.red,
-                        size: 40.0,
-                      ),
-                    )),
-                ...widget.dropDetails.map((drop) => Marker(
-                      point: LatLng(drop.latitude, drop.longitude),
-                      child: const Icon(
-                        Icons.location_on,
+                        Icons.circle_sharp,
+                        size: 20,
                         color: Colors.blue,
-                        size: 40.0,
                       ),
-                    )),
+                    ),
+                  ],
+                ),
+                CircleLayer(
+                  circles: [
+                    CircleMarker(
+                      point: _currentLocation!,
+                      color: _geofenceColor,
+                      borderStrokeWidth: 2,
+                      borderColor: Colors.blue,
+                      useRadiusInMeter: true,
+                      radius: _radius,
+                    ),
+                  ],
+                ),
               ],
-            ),
-            if (_polylinePoints.isNotEmpty)
-              PolylineLayer(
-                polylines: [
-                  Polyline(
-                    points: _polylinePoints,
-                    strokeWidth: 4.0,
-                    color: Colors.blue,
-                  ),
+              MarkerLayer(
+                markers: [
+                  ...widget.pickupDetails.map((pickup) => Marker(
+                        point: LatLng(pickup.latitude, pickup.longitude),
+                        child: const Icon(
+                          Icons.location_on,
+                          color: Colors.red,
+                          size: 40.0,
+                        ),
+                      )),
+                  ...widget.dropDetails.map((drop) => Marker(
+                        point: LatLng(drop.latitude, drop.longitude),
+                        child: const Icon(
+                          Icons.location_on,
+                          color: Colors.blue,
+                          size: 40.0,
+                        ),
+                      )),
                 ],
               ),
-          ],
-        ),
+              if (_polylinePoints.isNotEmpty)
+                PolylineLayer(
+                  polylines: [
+                    Polyline(
+                      points: _polylinePoints,
+                      strokeWidth: 4.0,
+                      color: Colors.blue,
+                    ),
+                  ],
+                ),
+            ],
+          ),
+          Positioned(
+            bottom: 95,
+            right: 16,
+            child: FloatingActionButton(
+              onPressed: _getCurrentLocation,
+              backgroundColor: Colors.white,
+              child: const Icon(
+                Icons.my_location,
+                color: Colors.redAccent,
+              ),
+            ),
+          ),
+          // Placeholder for draggable widget
+        ],
       ),
-      backgroundColor: Colors.white,
     );
   }
 }

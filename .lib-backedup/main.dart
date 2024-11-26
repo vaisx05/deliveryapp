@@ -102,7 +102,6 @@ class OrderScreen extends StatelessWidget {
                       ),
                       children: [
                         OrderDetail(order: order),
-                        const SizedBox(height: 16),
                         SizedBox(
                           height: 300,
                           child: OrderMap(
